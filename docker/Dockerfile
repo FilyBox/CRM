@@ -42,6 +42,9 @@ WORKDIR /app
 ENV HUSKY 0
 ENV DOCKER_OUTPUT 1
 ENV NEXT_TELEMETRY_DISABLED 1
+# Documenso's generated route types exceed Node's 2 GB default heap during
+# production builds. This only applies to the disposable installer stage.
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 # Encryption keys
 ARG NEXT_PRIVATE_ENCRYPTION_KEY="CAFEBABE"
@@ -76,6 +79,9 @@ RUN npm ci
 
 # Then copy all the source code (as it changes more often)
 COPY --from=builder /app/out/full/ .
+# Windows checkouts may contain CRLF shell scripts. Normalize them inside the
+# Linux image so their shebangs and commands remain executable.
+RUN find . -type f -name "*.sh" -exec sed -i 's/\r$//' {} +
 # Finally copy the turbo.json file so that we can run turbo commands
 COPY turbo.json turbo.json
 
@@ -129,6 +135,7 @@ RUN npx prisma generate --schema ./packages/prisma/schema.prisma
 
 # Get the start script from docker/
 COPY --chown=nodejs:nodejs ./docker/start.sh /app/apps/remix/start.sh
+RUN sed -i 's/\r$//' /app/apps/remix/start.sh
 
 WORKDIR /app/apps/remix
 

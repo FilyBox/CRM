@@ -1,6 +1,6 @@
-import { useLimits } from '@documenso/ee/server-only/limits/provider/client';
 import { useAutoSave } from '@documenso/lib/client-only/hooks/use-autosave';
 import { useDebouncedValue } from '@documenso/lib/client-only/hooks/use-debounced-value';
+import { useCommunityLimits as useLimits } from '@documenso/lib/client-only/providers/community-limits';
 import { useCurrentOrganisation } from '@documenso/lib/client-only/providers/organisation';
 import { useSession } from '@documenso/lib/client-only/providers/session';
 import { ZRecipientAuthOptionsSchema } from '@documenso/lib/types/document-auth';

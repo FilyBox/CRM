@@ -1,6 +1,9 @@
-import { DEFAULT_MINIMUM_ENVELOPE_ITEM_COUNT, PAID_PLAN_LIMITS } from '@documenso/ee/server-only/limits/constants';
-import { LimitsProvider } from '@documenso/ee/server-only/limits/provider/client';
+import { CommunityLimitsProvider as LimitsProvider } from '@documenso/lib/client-only/providers/community-limits';
 import { useOptionalCurrentOrganisation } from '@documenso/lib/client-only/providers/organisation';
+import {
+  COMMUNITY_DEFAULT_ENVELOPE_ITEM_COUNT as DEFAULT_MINIMUM_ENVELOPE_ITEM_COUNT,
+  COMMUNITY_UNLIMITED_LIMITS as PAID_PLAN_LIMITS,
+} from '@documenso/lib/universal/limits';
 import { isOrganisationPendingPayment } from '@documenso/lib/utils/billing';
 import { TrpcProvider } from '@documenso/trpc/react';
 import { Button } from '@documenso/ui/primitives/button';

@@ -1,4 +1,4 @@
-import { limitsHandler } from '@documenso/ee/server-only/limits/handler';
+import { communityLimitsHandler as limitsHandler } from '@documenso/lib/server-only/limits/community-limits-handler';
 
 import type { Route } from './+types/limits';
 

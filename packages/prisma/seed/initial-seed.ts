@@ -5,6 +5,7 @@ import { ALIGNMENT_TEST_FIELDS } from '@documenso/app-tests/constants/field-alig
 import { FIELD_META_TEST_FIELDS } from '@documenso/app-tests/constants/field-meta-pdf';
 import { OVERFLOW_TEST_FIELDS } from '@documenso/app-tests/constants/field-overflow-pdf';
 import { isBase64Image } from '@documenso/lib/constants/signatures';
+import { hashString } from '@documenso/lib/server-only/auth/hash';
 import { incrementDocumentId, incrementTemplateId } from '@documenso/lib/server-only/envelope/increment-id';
 import { SignatureLevel } from '@documenso/lib/types/signature-level';
 import { nanoid, prefixedId } from '@documenso/lib/universal/id';
@@ -18,12 +19,13 @@ import {
   ReadStatus,
   SendStatus,
   SigningStatus,
+  WebhookTriggerEvents,
 } from '../client';
 import { seedPendingDocument } from './documents';
 import { seedDirectTemplate, seedTemplate } from './templates';
 import { seedUser } from './users';
 
-const createDocumentData = async ({ documentData }: { documentData: string }) => {
+const createDocumentData = ({ documentData }: { documentData: string }) => {
   return prisma.documentData.create({
     data: {
       type: DocumentDataType.BYTES_64,
@@ -31,6 +33,83 @@ const createDocumentData = async ({ documentData }: { documentData: string }) =>
       initialData: documentData,
     },
   });
+};
+
+const provisionPlaneIntegration = async () => {
+  const adminUser = await prisma.user.findFirst({
+    where: { email: 'admin@documenso.com' },
+    include: {
+      ownedOrganisations: {
+        include: {
+          teams: true,
+        },
+      },
+    },
+  });
+
+  const team = adminUser?.ownedOrganisations[0]?.teams[0];
+  if (!adminUser || !team) {
+    return;
+  }
+
+  // biome-ignore lint/nursery/noUndeclaredEnvVars: local seed integration, not a cached turbo task
+  const plainToken = process.env.PLANE_INTEGRATION_API_TOKEN || 'api_plane_local_development';
+  const token = hashString(plainToken);
+  await prisma.apiToken.upsert({
+    where: { token },
+    update: {
+      userId: adminUser.id,
+      teamId: team.id,
+      expires: null,
+    },
+    create: {
+      name: 'Plane local integration',
+      token,
+      userId: adminUser.id,
+      teamId: team.id,
+    },
+  });
+
+  // biome-ignore lint/nursery/noUndeclaredEnvVars: local seed integration, not a cached turbo task
+  const webhookUrl = process.env.PLANE_WEBHOOK_URL || 'http://api:8000/api/integrations/documenso/webhook/';
+  // biome-ignore lint/nursery/noUndeclaredEnvVars: local seed integration, not a cached turbo task
+  const webhookSecret = process.env.PLANE_WEBHOOK_SECRET || 'documenso-plane-local-secret';
+  const existingWebhook = await prisma.webhook.findFirst({
+    where: {
+      teamId: team.id,
+      webhookUrl,
+    },
+  });
+
+  const webhookData = {
+    enabled: true,
+    secret: webhookSecret,
+    eventTriggers: [
+      WebhookTriggerEvents.DOCUMENT_SENT,
+      WebhookTriggerEvents.DOCUMENT_OPENED,
+      WebhookTriggerEvents.DOCUMENT_SIGNED,
+      WebhookTriggerEvents.DOCUMENT_RECIPIENT_COMPLETED,
+      WebhookTriggerEvents.DOCUMENT_COMPLETED,
+      WebhookTriggerEvents.DOCUMENT_REJECTED,
+      WebhookTriggerEvents.DOCUMENT_CANCELLED,
+    ],
+  };
+
+  if (existingWebhook) {
+    await prisma.webhook.update({
+      where: { id: existingWebhook.id },
+      data: webhookData,
+    });
+  } else {
+    await prisma.webhook.create({
+      data: {
+        ...webhookData,
+        webhookUrl,
+        userId: adminUser.id,
+        teamId: team.id,
+      },
+    });
+  }
 };
 
 export const seedDatabase = async () => {
@@ -49,6 +128,7 @@ export const seedDatabase = async () => {
   });
 
   if (exampleUserExists || adminUserExists) {
+    await provisionPlaneIntegration();
     return;
   }
 
@@ -267,6 +347,8 @@ export const seedDatabase = async () => {
       status: DocumentStatus.PENDING,
     }),
   ]);
+
+  await provisionPlaneIntegration();
 };
 
 export const seedAlignmentTestDocument = async ({
