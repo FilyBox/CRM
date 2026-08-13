@@ -2,6 +2,7 @@ import {
   EnvelopeRenderProvider,
   useCurrentEnvelopeRender,
 } from '@documenso/lib/client-only/providers/envelope-render-provider';
+import { APP_NAME } from '@documenso/lib/constants/app';
 import { PDF_VIEWER_ERROR_MESSAGES } from '@documenso/lib/constants/pdf-viewer-i18n';
 import { getDocumentDataUrlForPdfViewer } from '@documenso/lib/utils/envelope-download';
 import { formatDocumentsPath } from '@documenso/lib/utils/teams';
@@ -76,8 +77,7 @@ export const DocumentCertificateQRView = ({
 
               <DialogDescription>
                 <Trans>
-                  This document is available in Plane Contracts. You can view more details, recipients, and audit logs
-                  there.
+                  This document is available in {APP_NAME}. You can view more details, recipients, and audit logs there.
                 </Trans>
               </DialogDescription>
             </DialogHeader>

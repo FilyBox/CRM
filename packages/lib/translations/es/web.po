@@ -14843,3 +14843,84 @@ msgstr "Sube al menos dos fotos claras de la misma identificación oficial, incl
 #: apps/remix/app/components/general/document-signing/recipient-identity-evidence-upload.tsx
 msgid "Use JPEG or PNG images no larger than 10 MB each."
 msgstr "Usa imágenes JPEG o PNG de máximo 10 MB cada una."
+
+#: apps/remix/app/routes/_unauthenticated+/articles.signature-disclosure.tsx
+msgid "Thank you for using {APP_NAME} to perform your electronic document signing. The purpose of this disclosure is to inform you about the process, legality, and your rights regarding the use of electronic signatures on our platform. By opting to use an electronic signature, you are agreeing to the terms and conditions outlined below."
+msgstr "Gracias por utilizar {APP_NAME} para firmar electrónicamente sus documentos. El propósito de este aviso es informarle sobre el proceso, su validez legal y sus derechos relacionados con el uso de firmas electrónicas en nuestra plataforma. Al optar por una firma electrónica, acepta los términos y condiciones descritos a continuación."
+
+#: apps/remix/app/routes/_unauthenticated+/articles.signature-disclosure.tsx
+msgid "By proceeding to use the electronic signature service provided by {APP_NAME}, you affirm that you have read and understood this disclosure. You agree to all terms and conditions related to the use of electronic signatures and electronic transactions as outlined herein."
+msgstr "Al continuar con el servicio de firma electrónica proporcionado por {APP_NAME}, confirma que ha leído y comprendido este aviso. Acepta todos los términos y condiciones relacionados con el uso de firmas electrónicas y transacciones electrónicas aquí descritos."
+
+#: apps/remix/app/components/general/document/document-certificate-qr-view.tsx
+msgid "This document is available in {APP_NAME}. You can view more details, recipients, and audit logs there."
+msgstr "Este documento está disponible en {APP_NAME}. Ahí puede consultar más detalles, los destinatarios y el registro de auditoría."
+
+#: packages/email/template-components/template-admin-user-created.tsx
+#: packages/email/template-components/template-confirmation-email.tsx
+msgid "Welcome to {APP_NAME}!"
+msgstr "¡Bienvenido a {APP_NAME}!"
+
+#: packages/lib/jobs/definitions/emails/send-admin-user-created-email.handler.ts
+msgid "Welcome to {APP_NAME}"
+msgstr "Bienvenido a {APP_NAME}"
+
+#: packages/email/templates/admin-user-created.tsx
+msgid "Set your password for {APP_NAME}"
+msgstr "Configure su contraseña para {APP_NAME}"
+
+#: packages/email/templates/confirm-team-email.tsx
+msgid "Accept team email request for {teamName} on {APP_NAME}"
+msgstr "Acepte la solicitud de correo del equipo {teamName} en {APP_NAME}"
+
+#: packages/email/templates/confirm-team-email.tsx
+msgid "<0>{teamName}</0> has requested to use your email address for their team on {APP_NAME}."
+msgstr "<0>{teamName}</0> ha solicitado usar su dirección de correo electrónico para su equipo en {APP_NAME}."
+
+#: packages/email/templates/confirm-team-email.tsx
+msgid "You can revoke access at any time in your team settings on {APP_NAME} <0>here</0>."
+msgstr "Puede revocar el acceso en cualquier momento desde la configuración de su equipo en {APP_NAME} <0>aquí</0>."
+
+#: packages/email/templates/team-email-removed.tsx
+msgid "Team email removed for {teamName} on {APP_NAME}"
+msgstr "Correo del equipo {teamName} eliminado en {APP_NAME}"
+
+#: packages/email/templates/organisation-leave.tsx
+msgid "A member has left your organisation on {APP_NAME}"
+msgstr "Un miembro ha abandonado su organización en {APP_NAME}"
+
+#: packages/email/templates/organisation-join.tsx
+msgid "A member has joined your organisation on {APP_NAME}"
+msgstr "Un miembro se ha unido a su organización en {APP_NAME}"
+
+#: packages/email/templates/organisation-invite.tsx
+msgid "Accept invitation to join an organisation on {APP_NAME}"
+msgstr "Acepte la invitación para unirse a una organización en {APP_NAME}"
+
+#: packages/email/templates/organisation-invite.tsx
+msgid "Join {organisationName} on {APP_NAME}"
+msgstr "Únase a {organisationName} en {APP_NAME}"
+
+#: packages/email/templates/organisation-account-link-confirmation.tsx
+msgid "A request has been made to link your {APP_NAME} account"
+msgstr "Se ha solicitado vincular su cuenta de {APP_NAME}"
+
+#: packages/email/templates/organisation-account-link-confirmation.tsx
+msgid "Link your {APP_NAME} account"
+msgstr "Vincule su cuenta de {APP_NAME}"
+
+#: packages/email/templates/organisation-account-link-confirmation.tsx
+msgid "<0>{organisationName}</0> has requested to link your current {APP_NAME} account to their organisation."
+msgstr "<0>{organisationName}</0> ha solicitado vincular su cuenta actual de {APP_NAME} a su organización."
+
+#: packages/lib/server-only/team/create-team-email-verification.ts
+msgid "A request to use your email has been initiated by {0} on {APP_NAME}"
+msgstr "{0} ha iniciado una solicitud para usar su correo electrónico en {APP_NAME}"
+
+#: packages/lib/server-only/organisation/create-organisation-member-invites.ts
+msgid "You have been invited to join {0} on {APP_NAME}"
+msgstr "Le han invitado a unirse a {0} en {APP_NAME}"
+
+#: packages/lib/server-only/team/delete-team.ts
+msgid "Team \"{0}\" has been deleted on {APP_NAME}"
+msgstr "El equipo \"{0}\" se ha eliminado de {APP_NAME}"

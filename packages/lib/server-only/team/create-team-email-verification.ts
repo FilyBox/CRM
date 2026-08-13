@@ -1,5 +1,5 @@
 import { ConfirmTeamEmailTemplate } from '@documenso/email/templates/confirm-team-email';
-import { NEXT_PUBLIC_WEBAPP_URL } from '@documenso/lib/constants/app';
+import { APP_NAME, NEXT_PUBLIC_WEBAPP_URL } from '@documenso/lib/constants/app';
 import { TEAM_MEMBER_ROLE_PERMISSIONS_MAP } from '@documenso/lib/constants/teams';
 import { AppError, AppErrorCode } from '@documenso/lib/errors/app-error';
 import { createTokenVerification } from '@documenso/lib/utils/token-verification';
@@ -138,7 +138,7 @@ export const sendTeamEmailVerificationEmail = async (email: string, token: strin
   await emailTransport.sendMail({
     to: email,
     from: senderEmail,
-    subject: i18n._(msg`A request to use your email has been initiated by ${team.name} on Documenso`),
+    subject: i18n._(msg`A request to use your email has been initiated by ${team.name} on ${APP_NAME}`),
     html,
     text,
   });

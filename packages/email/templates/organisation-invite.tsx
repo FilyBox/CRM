@@ -1,3 +1,4 @@
+import { APP_NAME } from '@documenso/lib/constants/app';
 import { msg } from '@lingui/core/macro';
 import { useLingui } from '@lingui/react';
 import { Trans } from '@lingui/react/macro';
@@ -24,7 +25,7 @@ export const OrganisationInviteEmailTemplate = ({
 }: OrganisationInviteEmailProps) => {
   const { _ } = useLingui();
 
-  const previewText = msg`Accept invitation to join an organisation on Plane Contracts`;
+  const previewText = msg`Accept invitation to join an organisation on ${APP_NAME}`;
 
   return (
     <Html>
@@ -42,7 +43,9 @@ export const OrganisationInviteEmailTemplate = ({
 
             <Section className="p-2 text-muted-foreground">
               <Text className="text-center font-medium text-foreground text-lg">
-                <Trans>Join {organisationName} on Plane Contracts</Trans>
+                <Trans>
+                  Join {organisationName} on {APP_NAME}
+                </Trans>
               </Text>
 
               <Text className="my-1 text-center text-base">

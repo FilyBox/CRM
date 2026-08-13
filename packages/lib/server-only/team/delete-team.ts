@@ -1,5 +1,5 @@
 import { TeamDeleteEmailTemplate } from '@documenso/email/templates/team-delete';
-import { NEXT_PUBLIC_WEBAPP_URL } from '@documenso/lib/constants/app';
+import { APP_NAME, NEXT_PUBLIC_WEBAPP_URL } from '@documenso/lib/constants/app';
 import { AppError, AppErrorCode } from '@documenso/lib/errors/app-error';
 import { prisma } from '@documenso/prisma';
 import { msg } from '@lingui/core/macro';
@@ -138,7 +138,7 @@ export const sendTeamDeleteEmail = async ({ email, team, organisationId }: SendT
   await emailTransport.sendMail({
     to: email,
     from: senderEmail,
-    subject: i18n._(msg`Team "${team.name}" has been deleted on Documenso`),
+    subject: i18n._(msg`Team "${team.name}" has been deleted on ${APP_NAME}`),
     html,
     text,
   });

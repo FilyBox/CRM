@@ -1,12 +1,12 @@
-import { NEXT_PUBLIC_WEBAPP_URL } from '@documenso/lib/constants/app';
+import { APP_NAME, NEXT_PUBLIC_WEBAPP_URL } from '@documenso/lib/constants/app';
 import { i18n, type MessageDescriptor } from '@lingui/core';
 
 export const appMetaTags = (title?: MessageDescriptor) => {
-  const description = 'Create, send, sign, and verify contracts securely with Plane Contracts.';
+  const description = `Create, send, sign, and verify contracts securely with ${APP_NAME}.`;
 
   return [
     {
-      title: title ? `${i18n._(title)} - Plane Contracts` : 'Plane Contracts',
+      title: title ? `${i18n._(title)} - ${APP_NAME}` : APP_NAME,
     },
     {
       name: 'description',
@@ -14,11 +14,11 @@ export const appMetaTags = (title?: MessageDescriptor) => {
     },
     {
       name: 'keywords',
-      content: 'Plane Contracts, document signing, electronic signatures, contract templates',
+      content: `${APP_NAME}, document signing, electronic signatures, contract templates`,
     },
     {
       name: 'author',
-      content: 'Plane Contracts',
+      content: APP_NAME,
     },
     {
       name: 'robots',
@@ -26,7 +26,7 @@ export const appMetaTags = (title?: MessageDescriptor) => {
     },
     {
       property: 'og:title',
-      content: 'Plane Contracts',
+      content: APP_NAME,
     },
     {
       property: 'og:description',

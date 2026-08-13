@@ -1,4 +1,4 @@
-import { SUPPORT_EMAIL } from '@documenso/lib/constants/app';
+import { APP_NAME, SUPPORT_EMAIL } from '@documenso/lib/constants/app';
 import { Button } from '@documenso/ui/primitives/button';
 import { Trans } from '@lingui/react/macro';
 import { Link } from 'react-router';
@@ -16,10 +16,10 @@ export default function SignatureDisclosure() {
         </h2>
         <p>
           <Trans>
-            Thank you for using Plane Contracts to perform your electronic document signing. The purpose of this
-            disclosure is to inform you about the process, legality, and your rights regarding the use of electronic
-            signatures on our platform. By opting to use an electronic signature, you are agreeing to the terms and
-            conditions outlined below.
+            Thank you for using {APP_NAME} to perform your electronic document signing. The purpose of this disclosure
+            is to inform you about the process, legality, and your rights regarding the use of electronic signatures on
+            our platform. By opting to use an electronic signature, you are agreeing to the terms and conditions
+            outlined below.
           </Trans>
         </p>
 
@@ -127,8 +127,8 @@ export default function SignatureDisclosure() {
         </h2>
         <p>
           <Trans>
-            By proceeding to use the electronic signature service provided by Plane Contracts, you affirm that you have
-            read and understood this disclosure. You agree to all terms and conditions related to the use of electronic
+            By proceeding to use the electronic signature service provided by {APP_NAME}, you affirm that you have read
+            and understood this disclosure. You agree to all terms and conditions related to the use of electronic
             signatures and electronic transactions as outlined herein.
           </Trans>
         </p>

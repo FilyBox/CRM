@@ -1,3 +1,4 @@
+import { APP_NAME } from '@documenso/lib/constants/app';
 import { Trans } from '@lingui/react/macro';
 
 import { Button, Section, Text } from '../components';
@@ -15,7 +16,7 @@ export const TemplateAdminUserCreated = ({ resetPasswordLink, assetBaseUrl }: Te
 
       <Section className="flex-row items-center justify-center">
         <Text className="mx-auto mb-0 max-w-[80%] text-center font-semibold text-foreground text-lg">
-          <Trans>Welcome to Plane Contracts!</Trans>
+          <Trans>Welcome to {APP_NAME}!</Trans>
         </Text>
 
         <Text className="my-1 text-center text-base text-muted-foreground">

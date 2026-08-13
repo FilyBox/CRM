@@ -1,3 +1,4 @@
+import { APP_NAME } from '@documenso/lib/constants/app';
 import { msg } from '@lingui/core/macro';
 import { useLingui } from '@lingui/react';
 import { Trans } from '@lingui/react/macro';
@@ -26,7 +27,7 @@ export const OrganisationLeaveEmailTemplate = ({
 }: OrganisationLeaveEmailProps) => {
   const { _ } = useLingui();
 
-  const previewText = msg`A member has left your organisation on Plane Contracts`;
+  const previewText = msg`A member has left your organisation on ${APP_NAME}`;
 
   return (
     <Html>

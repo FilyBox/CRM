@@ -1,4 +1,4 @@
-import { NEXT_PUBLIC_WEBAPP_URL } from '@documenso/lib/constants/app';
+import { APP_NAME, NEXT_PUBLIC_WEBAPP_URL } from '@documenso/lib/constants/app';
 import { getDocumentByAccessToken } from '@documenso/lib/server-only/document/get-document-by-access-token';
 import { redirect, useLoaderData } from 'react-router';
 
@@ -12,15 +12,15 @@ export function meta({ params: { slug } }: Route.MetaArgs) {
   }
 
   return [
-    { title: 'Plane Contracts - Share' },
-    { description: 'A document was signed with Plane Contracts.' },
+    { title: `${APP_NAME} - Share` },
+    { description: `A document was signed with ${APP_NAME}.` },
     {
       property: 'og:title',
-      content: 'Plane Contracts',
+      content: APP_NAME,
     },
     {
       property: 'og:description',
-      content: 'A document was signed with Plane Contracts.',
+      content: `A document was signed with ${APP_NAME}.`,
     },
     {
       property: 'og:type',
@@ -40,7 +40,7 @@ export function meta({ params: { slug } }: Route.MetaArgs) {
     },
     {
       name: 'twitter:description',
-      content: 'A document was signed with Plane Contracts.',
+      content: `A document was signed with ${APP_NAME}.`,
     },
   ];
 }

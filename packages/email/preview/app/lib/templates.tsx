@@ -1,3 +1,4 @@
+import { APP_NAME } from '@documenso/lib/constants/app';
 import type { ComponentType } from 'react';
 
 import { AccessAuth2FAEmailTemplate } from '../../../templates/access-auth-2fa';
@@ -258,7 +259,7 @@ export const templates: Record<string, TemplateDefinition> = {
     component: OrganisationInviteEmailTemplate,
     fields: {
       senderName: { type: 'text', label: 'Sender name', default: 'Lucas Smith' },
-      organisationName: { type: 'text', label: 'Organisation name', default: 'Plane Contracts' },
+      organisationName: { type: 'text', label: 'Organisation name', default: APP_NAME },
     },
   },
   'organisation-join': {
@@ -267,7 +268,7 @@ export const templates: Record<string, TemplateDefinition> = {
     component: OrganisationJoinEmailTemplate,
     fields: {
       memberName: { type: 'text', label: 'Member name', default: 'Lucas Smith' },
-      organisationName: { type: 'text', label: 'Organisation name', default: 'Plane Contracts' },
+      organisationName: { type: 'text', label: 'Organisation name', default: APP_NAME },
     },
   },
   'organisation-leave': {
@@ -276,7 +277,7 @@ export const templates: Record<string, TemplateDefinition> = {
     component: OrganisationLeaveEmailTemplate,
     fields: {
       memberName: { type: 'text', label: 'Member name', default: 'Lucas Smith' },
-      organisationName: { type: 'text', label: 'Organisation name', default: 'Plane Contracts' },
+      organisationName: { type: 'text', label: 'Organisation name', default: APP_NAME },
     },
   },
   'organisation-delete': {
@@ -284,7 +285,7 @@ export const templates: Record<string, TemplateDefinition> = {
     group: 'Organisations',
     component: OrganisationDeleteEmailTemplate,
     fields: {
-      organisationName: { type: 'text', label: 'Organisation name', default: 'Plane Contracts' },
+      organisationName: { type: 'text', label: 'Organisation name', default: APP_NAME },
     },
   },
   'organisation-limit-alert': {
@@ -292,7 +293,7 @@ export const templates: Record<string, TemplateDefinition> = {
     group: 'Organisations',
     component: OrganisationLimitAlertEmailTemplate,
     fields: {
-      organisationName: { type: 'text', label: 'Organisation name', default: 'Plane Contracts' },
+      organisationName: { type: 'text', label: 'Organisation name', default: APP_NAME },
     },
   },
   'organisation-account-link-confirmation': {
@@ -300,7 +301,7 @@ export const templates: Record<string, TemplateDefinition> = {
     group: 'Organisations',
     component: OrganisationAccountLinkConfirmationTemplate,
     fields: {
-      organisationName: { type: 'text', label: 'Organisation name', default: 'Plane Contracts' },
+      organisationName: { type: 'text', label: 'Organisation name', default: APP_NAME },
     },
   },
 
@@ -310,7 +311,7 @@ export const templates: Record<string, TemplateDefinition> = {
     group: 'Teams',
     component: ConfirmTeamEmailTemplate,
     fields: {
-      teamName: { type: 'text', label: 'Team name', default: 'Plane Contracts' },
+      teamName: { type: 'text', label: 'Team name', default: APP_NAME },
     },
   },
   'team-delete': {
@@ -324,7 +325,7 @@ export const templates: Record<string, TemplateDefinition> = {
     group: 'Teams',
     component: TeamEmailRemovedTemplate,
     fields: {
-      teamName: { type: 'text', label: 'Team name', default: 'Plane Contracts' },
+      teamName: { type: 'text', label: 'Team name', default: APP_NAME },
       teamEmail: { type: 'text', label: 'Team email', default: 'team@example.com' },
     },
   },

@@ -1,3 +1,4 @@
+import { APP_NAME } from '@documenso/lib/constants/app';
 import { msg } from '@lingui/core/macro';
 import { useLingui } from '@lingui/react';
 import { Trans } from '@lingui/react/macro';
@@ -25,7 +26,7 @@ export const OrganisationAccountLinkConfirmationTemplate = ({
   const previewText =
     type === 'create'
       ? msg`A request has been made to create an account for you`
-      : msg`A request has been made to link your Plane Contracts account`;
+      : msg`A request has been made to link your ${APP_NAME} account`;
 
   return (
     <Html>
@@ -46,7 +47,7 @@ export const OrganisationAccountLinkConfirmationTemplate = ({
                 {type === 'create' ? (
                   <Trans>Account creation request</Trans>
                 ) : (
-                  <Trans>Link your Plane Contracts account</Trans>
+                  <Trans>Link your {APP_NAME} account</Trans>
                 )}
               </Text>
 
@@ -58,8 +59,8 @@ export const OrganisationAccountLinkConfirmationTemplate = ({
                   </Trans>
                 ) : (
                   <Trans>
-                    <span className="font-bold">{organisationName}</span> has requested to link your current Plane
-                    Contracts account to their organisation.
+                    <span className="font-bold">{organisationName}</span> has requested to link your current {APP_NAME}{' '}
+                    account to their organisation.
                   </Trans>
                 )}
               </Text>
@@ -87,7 +88,7 @@ export const OrganisationAccountLinkConfirmationTemplate = ({
 
                 <Text className="mt-2 text-sm">
                   <Trans>
-                    You can unlink your account at any time in your security settings on Plane Contracts{' '}
+                    You can unlink your account at any time in your security settings on {APP_NAME}{' '}
                     <Link href={`${assetBaseUrl}/settings/security/linked-accounts`}>here.</Link>
                   </Trans>
                 </Text>

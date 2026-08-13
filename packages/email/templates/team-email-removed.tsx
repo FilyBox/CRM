@@ -1,3 +1,4 @@
+import { APP_NAME } from '@documenso/lib/constants/app';
 import { formatTeamUrl } from '@documenso/lib/utils/teams';
 import { msg } from '@lingui/core/macro';
 import { useLingui } from '@lingui/react';
@@ -25,7 +26,7 @@ export const TeamEmailRemovedTemplate = ({
 }: TeamEmailRemovedTemplateProps) => {
   const { _ } = useLingui();
 
-  const previewText = msg`Team email removed for ${teamName} on Plane Contracts`;
+  const previewText = msg`Team email removed for ${teamName} on ${APP_NAME}`;
 
   return (
     <Html>

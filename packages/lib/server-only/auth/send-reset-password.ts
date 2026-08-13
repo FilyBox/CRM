@@ -3,7 +3,7 @@ import { ResetPasswordTemplate } from '@documenso/email/templates/reset-password
 import { prisma } from '@documenso/prisma';
 import { createElement } from 'react';
 
-import { NEXT_PUBLIC_WEBAPP_URL } from '../../constants/app';
+import { APP_NAME, NEXT_PUBLIC_WEBAPP_URL, SUPPORT_EMAIL } from '../../constants/app';
 import { env } from '../../utils/env';
 import { renderEmailWithI18N } from '../../utils/render-email-with-i18n';
 
@@ -37,8 +37,8 @@ export const sendResetPassword = async ({ userId }: SendResetPasswordOptions) =>
       name: user.name || '',
     },
     from: {
-      name: env('NEXT_PRIVATE_SMTP_FROM_NAME') || 'Documenso',
-      address: env('NEXT_PRIVATE_SMTP_FROM_ADDRESS') || 'noreply@documenso.com',
+      name: env('NEXT_PRIVATE_SMTP_FROM_NAME') || APP_NAME,
+      address: env('NEXT_PRIVATE_SMTP_FROM_ADDRESS') || SUPPORT_EMAIL,
     },
     subject: 'Password Reset Success!',
     html,
