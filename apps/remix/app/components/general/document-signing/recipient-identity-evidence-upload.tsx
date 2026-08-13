@@ -7,7 +7,7 @@ import {
 import { Button } from '@documenso/ui/primitives/button';
 import { useToast } from '@documenso/ui/primitives/use-toast';
 import { Trans, useLingui } from '@lingui/react/macro';
-import { BadgeCheckIcon, ImagePlusIcon, ShieldCheckIcon } from 'lucide-react';
+import { BadgeCheckIcon, ImagePlusIcon, ShieldCheckIcon, Trash2Icon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 type RecipientIdentityEvidenceUploadProps = {
@@ -34,6 +34,7 @@ export const RecipientIdentityEvidenceUpload = ({
   const [evidence, setEvidence] = useState<IdentityEvidenceResponse['evidence']>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
+  const [deletingEvidenceId, setDeletingEvidenceId] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -72,14 +73,18 @@ export const RecipientIdentityEvidenceUpload = ({
   }, [token, toast, t]);
 
   useEffect(() => {
-    onStatusChange(evidence.length, isLoading || isUploading);
-  }, [evidence.length, isLoading, isUploading, onStatusChange]);
+    onStatusChange(evidence.length, isLoading || isUploading || deletingEvidenceId !== null);
+  }, [deletingEvidenceId, evidence.length, isLoading, isUploading, onStatusChange]);
 
   const handleFilesSelected = async (files: File[]) => {
-    if (files.length < RECIPIENT_IDENTITY_MIN_FILES || files.length > RECIPIENT_IDENTITY_MAX_FILES) {
+    if (files.length === 0) {
+      return;
+    }
+
+    if (evidence.length + files.length > RECIPIENT_IDENTITY_MAX_FILES) {
       toast({
-        title: t`Select at least two images`,
-        description: t`Choose between two and four photos of the same official identification.`,
+        title: t`You can upload up to four images`,
+        description: t`Remove an existing image before adding another one.`,
         variant: 'destructive',
       });
       return;
@@ -123,7 +128,10 @@ export const RecipientIdentityEvidenceUpload = ({
       setEvidence(result.evidence);
       toast({
         title: t`Identification images saved`,
-        description: t`They will be attached to the signed contract as evidence.`,
+        description:
+          result.evidence.length >= RECIPIENT_IDENTITY_MIN_FILES
+            ? t`The minimum requirement is complete.`
+            : t`Add one more image to enable signing.`,
       });
     } catch (error) {
       toast({
@@ -137,6 +145,35 @@ export const RecipientIdentityEvidenceUpload = ({
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
+    }
+  };
+
+  const handleRemoveEvidence = async (evidenceId: string) => {
+    setDeletingEvidenceId(evidenceId);
+
+    try {
+      const response = await fetch(
+        `/api/files/recipient-identity/${encodeURIComponent(token)}/${encodeURIComponent(evidenceId)}`,
+        { method: 'DELETE' },
+      );
+      const result = (await response.json()) as IdentityEvidenceResponse & { error?: string };
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Unable to remove identification image');
+      }
+
+      setEvidence(result.evidence);
+      toast({
+        title: t`Identification image removed`,
+      });
+    } catch (error) {
+      toast({
+        title: t`Unable to remove identification image`,
+        description: error instanceof Error ? error.message : t`Please try again.`,
+        variant: 'destructive',
+      });
+    } finally {
+      setDeletingEvidenceId(null);
     }
   };
 
@@ -159,6 +196,9 @@ export const RecipientIdentityEvidenceUpload = ({
               signature appears. One evidence page bearing your name and email will be added to the completed contract.
             </Trans>
           </p>
+          <p className="mt-1 text-muted-foreground text-xs">
+            <Trans>You can add the photos one at a time or select several at once.</Trans>
+          </p>
         </div>
       </div>
 
@@ -169,11 +209,33 @@ export const RecipientIdentityEvidenceUpload = ({
               key={item.id || item.sha256}
               className="flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 text-sm"
             >
-              <BadgeCheckIcon className="h-4 w-4 shrink-0 text-green-600" />
+              {item.id ? (
+                <img
+                  src={`/api/files/recipient-identity/${encodeURIComponent(token)}/${encodeURIComponent(item.id)}`}
+                  alt={item.fileName}
+                  className="h-12 w-12 shrink-0 rounded border border-border object-cover"
+                />
+              ) : (
+                <BadgeCheckIcon className="h-4 w-4 shrink-0 text-green-600" />
+              )}
               <span className="min-w-0 flex-1 truncate">{item.fileName}</span>
               <span className="shrink-0 text-muted-foreground">
                 <Trans>Image {index + 1}</Trans>
               </span>
+              {item.id && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 w-7 px-0"
+                  loading={deletingEvidenceId === item.id}
+                  disabled={disabled || isUploading || deletingEvidenceId !== null}
+                  aria-label={t`Remove identification image`}
+                  onClick={() => item.id && void handleRemoveEvidence(item.id)}
+                >
+                  <Trash2Icon className="h-4 w-4" />
+                </Button>
+              )}
             </div>
           ))}
         </div>
@@ -194,7 +256,7 @@ export const RecipientIdentityEvidenceUpload = ({
           {isComplete ? (
             <Trans>{evidence.length} identification images ready</Trans>
           ) : (
-            <Trans>Two images are required to enable signing</Trans>
+            <Trans>{evidence.length} of 2 required images added</Trans>
           )}
         </p>
 
@@ -203,11 +265,11 @@ export const RecipientIdentityEvidenceUpload = ({
           variant="secondary"
           size="sm"
           loading={isLoading || isUploading}
-          disabled={disabled || isLoading || isUploading}
+          disabled={disabled || isLoading || isUploading || evidence.length >= RECIPIENT_IDENTITY_MAX_FILES}
           onClick={() => fileInputRef.current?.click()}
         >
           <ImagePlusIcon className="mr-2 h-4 w-4" />
-          {evidence.length > 0 ? <Trans>Replace images</Trans> : <Trans>Select images</Trans>}
+          {evidence.length > 0 ? <Trans>Add another image</Trans> : <Trans>Add identification image</Trans>}
         </Button>
       </div>
     </div>

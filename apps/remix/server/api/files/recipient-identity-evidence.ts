@@ -7,6 +7,7 @@ import {
   RECIPIENT_IDENTITY_MIN_FILES,
 } from '@documenso/lib/constants/recipient-identity';
 import { deleteFile } from '@documenso/lib/universal/upload/delete-file';
+import { getFileServerSide } from '@documenso/lib/universal/upload/get-file.server';
 import { putFileServerSide } from '@documenso/lib/universal/upload/put-file.server';
 import { prisma } from '@documenso/prisma';
 import { DocumentStatus, RecipientRole, SigningStatus } from '@prisma/client';
@@ -67,6 +68,41 @@ export const recipientIdentityEvidenceRoute = new Hono<HonoEnv>()
       maximum: RECIPIENT_IDENTITY_MAX_FILES,
     });
   })
+  .get('/:token/:evidenceId', async (c) => {
+    const signer = await getPendingSigner(c.req.param('token'));
+
+    if (!signer) {
+      return c.json({ error: 'Signing request not found or no longer accepts evidence' }, 404);
+    }
+
+    const evidence = await prisma.recipientIdentityEvidence.findFirst({
+      where: {
+        id: c.req.param('evidenceId'),
+        recipientId: signer.id,
+      },
+      select: {
+        storageType: true,
+        data: true,
+        sha256: true,
+      },
+    });
+
+    if (!evidence) {
+      return c.json({ error: 'Identification image not found' }, 404);
+    }
+
+    if (c.req.header('If-None-Match') === evidence.sha256) {
+      return c.status(304);
+    }
+
+    const image = await getFileServerSide({ type: evidence.storageType, data: evidence.data });
+
+    c.header('Content-Type', 'image/jpeg');
+    c.header('Cache-Control', 'private, max-age=300');
+    c.header('ETag', evidence.sha256);
+
+    return c.body(image);
+  })
   .post('/:token', async (c) => {
     const signer = await getPendingSigner(c.req.param('token'));
 
@@ -77,10 +113,30 @@ export const recipientIdentityEvidenceRoute = new Hono<HonoEnv>()
     const formData = await c.req.formData();
     const files = formData.getAll('files').filter((entry): entry is File => entry instanceof File);
 
-    if (files.length < RECIPIENT_IDENTITY_MIN_FILES || files.length > RECIPIENT_IDENTITY_MAX_FILES) {
+    if (files.length === 0 || files.length > RECIPIENT_IDENTITY_MAX_FILES) {
       return c.json(
         {
-          error: `Upload between ${RECIPIENT_IDENTITY_MIN_FILES} and ${RECIPIENT_IDENTITY_MAX_FILES} images`,
+          error: `Upload between 1 and ${RECIPIENT_IDENTITY_MAX_FILES} images`,
+        },
+        400,
+      );
+    }
+
+    const existingEvidence = await prisma.recipientIdentityEvidence.findMany({
+      where: { recipientId: signer.id },
+      orderBy: { position: 'asc' },
+      select: {
+        id: true,
+        fileName: true,
+        position: true,
+        sha256: true,
+      },
+    });
+
+    if (existingEvidence.length + files.length > RECIPIENT_IDENTITY_MAX_FILES) {
+      return c.json(
+        {
+          error: `A maximum of ${RECIPIENT_IDENTITY_MAX_FILES} identification images is allowed`,
         },
         400,
       );
@@ -107,7 +163,10 @@ export const recipientIdentityEvidenceRoute = new Hono<HonoEnv>()
     }> = [];
 
     try {
-      for (const [position, file] of files.entries()) {
+      const nextPosition = Math.max(-1, ...existingEvidence.map(({ position }) => position)) + 1;
+
+      for (const [index, file] of files.entries()) {
+        const position = nextPosition + index;
         const input = Buffer.from(await file.arrayBuffer());
 
         // Sharp decodes the actual image bytes, applies phone orientation,
@@ -143,24 +202,13 @@ export const recipientIdentityEvidenceRoute = new Hono<HonoEnv>()
       return c.json({ error: 'One or more files are not valid identification images' }, 400);
     }
 
-    const previousEvidence = await prisma.recipientIdentityEvidence.findMany({
-      where: { recipientId: signer.id },
-      select: { storageType: true, data: true },
-    });
-
     try {
-      await prisma.$transaction(async (tx) => {
-        await tx.recipientIdentityEvidence.deleteMany({
-          where: { recipientId: signer.id },
-        });
-
-        await tx.recipientIdentityEvidence.createMany({
-          data: uploadedEvidence.map((evidence) => ({
-            ...evidence,
-            envelopeId: signer.envelopeId,
-            recipientId: signer.id,
-          })),
-        });
+      await prisma.recipientIdentityEvidence.createMany({
+        data: uploadedEvidence.map((evidence) => ({
+          ...evidence,
+          envelopeId: signer.envelopeId,
+          recipientId: signer.id,
+        })),
       });
     } catch (error) {
       await Promise.allSettled(
@@ -169,10 +217,66 @@ export const recipientIdentityEvidenceRoute = new Hono<HonoEnv>()
       throw error;
     }
 
-    await Promise.allSettled(previousEvidence.map(({ storageType, data }) => deleteFile({ type: storageType, data })));
+    const savedEvidence = await prisma.recipientIdentityEvidence.findMany({
+      where: { recipientId: signer.id },
+      orderBy: { position: 'asc' },
+      select: {
+        id: true,
+        fileName: true,
+        position: true,
+        sha256: true,
+      },
+    });
 
     return c.json({
-      count: uploadedEvidence.length,
-      evidence: uploadedEvidence.map(({ fileName, position, sha256 }) => ({ fileName, position, sha256 })),
+      count: savedEvidence.length,
+      evidence: savedEvidence,
+    });
+  })
+  .delete('/:token/:evidenceId', async (c) => {
+    const signer = await getPendingSigner(c.req.param('token'));
+
+    if (!signer) {
+      return c.json({ error: 'Signing request not found or no longer accepts evidence' }, 404);
+    }
+
+    const evidence = await prisma.recipientIdentityEvidence.findFirst({
+      where: {
+        id: c.req.param('evidenceId'),
+        recipientId: signer.id,
+      },
+      select: {
+        id: true,
+        storageType: true,
+        data: true,
+      },
+    });
+
+    if (!evidence) {
+      return c.json({ error: 'Identification image not found' }, 404);
+    }
+
+    await prisma.recipientIdentityEvidence.delete({
+      where: { id: evidence.id },
+    });
+
+    await deleteFile({ type: evidence.storageType, data: evidence.data }).catch((error: unknown) => {
+      c.get('logger').warn({ error, evidenceId: evidence.id }, 'Failed to delete identification image from storage');
+    });
+
+    const remainingEvidence = await prisma.recipientIdentityEvidence.findMany({
+      where: { recipientId: signer.id },
+      orderBy: { position: 'asc' },
+      select: {
+        id: true,
+        fileName: true,
+        position: true,
+        sha256: true,
+      },
+    });
+
+    return c.json({
+      count: remainingEvidence.length,
+      evidence: remainingEvidence,
     });
   });

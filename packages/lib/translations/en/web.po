@@ -5849,6 +5849,50 @@ msgstr "Font Size"
 msgid "For any questions regarding this disclosure, electronic signatures, or any related process, please contact us at: <0>{SUPPORT_EMAIL}</0>"
 msgstr "For any questions regarding this disclosure, electronic signatures, or any related process, please contact us at: <0>{SUPPORT_EMAIL}</0>"
 
+#: apps/remix/app/components/general/document-signing/recipient-identity-evidence-upload.tsx
+msgid "Add identification image"
+msgstr "Add identification image"
+
+#: apps/remix/app/components/general/document-signing/recipient-identity-evidence-upload.tsx
+msgid "Add another image"
+msgstr "Add another image"
+
+#: apps/remix/app/components/general/document-signing/recipient-identity-evidence-upload.tsx
+msgid "Add one more image to enable signing."
+msgstr "Add one more image to enable signing."
+
+#: apps/remix/app/components/general/document-signing/recipient-identity-evidence-upload.tsx
+msgid "Identification image removed"
+msgstr "Identification image removed"
+
+#: apps/remix/app/components/general/document-signing/recipient-identity-evidence-upload.tsx
+msgid "Remove an existing image before adding another one."
+msgstr "Remove an existing image before adding another one."
+
+#: apps/remix/app/components/general/document-signing/recipient-identity-evidence-upload.tsx
+msgid "Remove identification image"
+msgstr "Remove identification image"
+
+#: apps/remix/app/components/general/document-signing/recipient-identity-evidence-upload.tsx
+msgid "The minimum requirement is complete."
+msgstr "The minimum requirement is complete."
+
+#: apps/remix/app/components/general/document-signing/recipient-identity-evidence-upload.tsx
+msgid "Unable to remove identification image"
+msgstr "Unable to remove identification image"
+
+#: apps/remix/app/components/general/document-signing/recipient-identity-evidence-upload.tsx
+msgid "You can add the photos one at a time or select several at once."
+msgstr "You can add the photos one at a time or select several at once."
+
+#: apps/remix/app/components/general/document-signing/recipient-identity-evidence-upload.tsx
+msgid "You can upload up to four images"
+msgstr "You can upload up to four images"
+
+#: apps/remix/app/components/general/document-signing/recipient-identity-evidence-upload.tsx
+msgid "{0} of 2 required images added"
+msgstr "{0} of 2 required images added"
+
 #: apps/remix/app/components/dialogs/template-bulk-send-dialog.tsx
 msgid "For each recipient, provide their email (required) and name (optional) in separate columns. Download the template CSV below for the correct format."
 msgstr "For each recipient, provide their email (required) and name (optional) in separate columns. Download the template CSV below for the correct format."
