@@ -32,7 +32,6 @@ import { useEmbedSigningContext } from '~/components/embed/embed-signing-context
 import { EnvelopeSignerPageRenderer } from '~/components/general/envelope-signing/envelope-signer-page-renderer';
 import { EnvelopePdfViewer } from '~/components/general/pdf-viewer/envelope-pdf-viewer';
 
-import { BrandingLogo } from '../branding-logo';
 import { DocumentSigningAttachmentsPopover } from '../document-signing/document-signing-attachments-popover';
 import { EnvelopeItemSelector } from '../envelope-editor/envelope-file-selector';
 import EnvelopeSignerForm from '../envelope-signing/envelope-signer-form';
@@ -56,12 +55,7 @@ export const DocumentSigningPageViewV2 = () => {
     selectedAssistantRecipientFields,
   } = useRequiredEnvelopeSigningContext();
 
-  const {
-    isEmbed = false,
-    allowDocumentRejection = true,
-    hidePoweredBy = true,
-    onDocumentRejected,
-  } = useEmbedSigningContext() || {};
+  const { isEmbed = false, allowDocumentRejection = true, onDocumentRejected } = useEmbedSigningContext() || {};
 
   const { t } = useLingui();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -280,20 +274,6 @@ export const DocumentSigningPageViewV2 = () => {
               <div className="block pb-28 lg:hidden">
                 <DocumentSigningMobileWidget />
               </div>
-
-              {!hidePoweredBy && (
-                <a
-                  href="https://documenso.com"
-                  target="_blank"
-                  className="fixed right-0 bottom-0 z-40 hidden cursor-pointer rounded-tl bg-primary px-2 py-1 font-medium text-primary-foreground text-xs opacity-60 hover:opacity-100 lg:block"
-                  rel="noopener"
-                >
-                  <span>
-                    <Trans>Powered by</Trans>
-                  </span>
-                  <BrandingLogo className="ml-2 inline-block h-[14px]" />
-                </a>
-              )}
             </div>
           </div>
         </div>

@@ -8,6 +8,7 @@ import { DOCUMENT_AUDIT_LOG_TYPE } from '../../types/document-audit-logs';
 import { extractDerivedDocumentEmailSettings } from '../../types/document-email';
 import { mapEnvelopeToWebhookDocumentPayload, ZWebhookDocumentSchema } from '../../types/webhook-payload';
 import type { ApiRequestMetadata } from '../../universal/extract-request-metadata';
+import { deleteFile } from '../../universal/upload/delete-file';
 import { isDocumentCompleted } from '../../utils/document';
 import { createDocumentAuditLogData } from '../../utils/document-audit-logs';
 import { type EnvelopeIdOptions, unsafeBuildEnvelopeIdQuery } from '../../utils/envelope';
@@ -168,6 +169,11 @@ const handleDocumentOwnerDelete = async ({ envelope, user, requestMetadata }: Ha
   }
 
   // Hard delete draft and pending documents.
+  const identityEvidence = await prisma.recipientIdentityEvidence.findMany({
+    where: { envelopeId: envelope.id },
+    select: { storageType: true, data: true },
+  });
+
   const deletedEnvelope = await prisma.$transaction(async (tx) => {
     // Currently redundant since deleting a document will delete the audit logs.
     // However may be useful if we disassociate audit logs and documents if required.
@@ -191,6 +197,8 @@ const handleDocumentOwnerDelete = async ({ envelope, user, requestMetadata }: Ha
       },
     });
   });
+
+  await Promise.allSettled(identityEvidence.map(({ storageType, data }) => deleteFile({ type: storageType, data })));
 
   const isEnvelopeDeleteEmailEnabled = extractDerivedDocumentEmailSettings(envelope.documentMeta).documentDeleted;
 

@@ -22,8 +22,6 @@ import { match } from 'ts-pattern';
 import { UAParser } from 'ua-parser-js';
 import { renderSVG } from 'uqr';
 
-import { BrandingLogo } from '~/components/general/branding-logo';
-
 import type { Route } from './+types/certificate';
 
 const FRIENDLY_SIGNING_REASONS = {
@@ -102,7 +100,7 @@ export async function loader({ request }: Route.LoaderArgs) {
  * Update: Maybe <Trans> tags work now after RR7 migration.
  */
 export default function SigningCertificate({ loaderData }: Route.ComponentProps) {
-  const { document, documentLanguage, hidePoweredBy, auditLogs, messages } = loaderData;
+  const { document, documentLanguage, auditLogs, messages } = loaderData;
 
   const { i18n, _ } = useLingui();
 
@@ -363,7 +361,7 @@ export default function SigningCertificate({ loaderData }: Route.ComponentProps)
         </CardContent>
       </Card>
 
-      {!hidePoweredBy && (
+      {document.qrToken && (
         <div className="my-8 flex-row-reverse space-y-4">
           <div className="flex items-end justify-end gap-x-4">
             <div
@@ -374,13 +372,6 @@ export default function SigningCertificate({ loaderData }: Route.ComponentProps)
                 }),
               }}
             />
-          </div>
-
-          <div className="flex items-end justify-end gap-x-4">
-            <p className="flex-shrink-0 font-medium text-sm print:text-xs">
-              {_(msg`Signing certificate provided by`)}:
-            </p>
-            <BrandingLogo className="max-h-6 print:max-h-4" />
           </div>
         </div>
       )}

@@ -1,6 +1,7 @@
 import { prepareCscRecipientSigning } from '@documenso/ee/server-only/signing/csc/prepare-recipient-signing';
 import { completeDocumentWithToken } from '@documenso/lib/server-only/document/complete-document-with-token';
 import { rejectDocumentWithToken } from '@documenso/lib/server-only/document/reject-document-with-token';
+import { assertRecipientIdentityEvidence } from '@documenso/lib/server-only/recipient/assert-recipient-identity-evidence';
 import { createEnvelopeRecipients } from '@documenso/lib/server-only/recipient/create-envelope-recipients';
 import { deleteEnvelopeRecipient } from '@documenso/lib/server-only/recipient/delete-envelope-recipient';
 import { getRecipientById } from '@documenso/lib/server-only/recipient/get-recipient-by-id';
@@ -607,10 +608,20 @@ export const recipientRouter = router({
           ...unsafeBuildEnvelopeIdQuery({ type: 'documentId', id: documentId }, EnvelopeType.DOCUMENT),
           recipients: { some: { token } },
         },
-        select: { signatureLevel: true, internalVersion: true },
+        select: {
+          signatureLevel: true,
+          internalVersion: true,
+          documentMeta: {
+            select: { identityVerificationRequired: true },
+          },
+        },
       });
 
       if (isTspEnvelope(envelope)) {
+        if (envelope.documentMeta.identityVerificationRequired) {
+          await assertRecipientIdentityEvidence({ token });
+        }
+
         return await prepareCscRecipientSigning({
           recipientToken: token,
           requestMetadata: ctx.metadata.requestMetadata,

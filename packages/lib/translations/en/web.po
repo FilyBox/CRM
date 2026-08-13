@@ -14766,3 +14766,75 @@ msgstr "Your verification code:"
 #: apps/remix/app/routes/_authenticated+/o.$orgUrl.settings.sso.tsx
 msgid "your-domain.com another-domain.com"
 msgstr "your-domain.com another-domain.com"
+
+#: apps/remix/app/components/general/document-signing/recipient-identity-evidence-upload.tsx
+msgid "{0} identification images ready"
+msgstr "{0} identification images ready"
+
+#: apps/remix/app/components/general/document-signing/recipient-identity-evidence-upload.tsx
+msgid "Choose between two and four photos of the same official identification."
+msgstr "Choose between two and four photos of the same official identification."
+
+#: apps/remix/app/components/general/document-signing/recipient-identity-evidence-upload.tsx
+msgid "Identification images saved"
+msgstr "Identification images saved"
+
+#: apps/remix/app/components/general/document-signing/recipient-identity-evidence-upload.tsx
+msgid "Invalid identification image"
+msgstr "Invalid identification image"
+
+#: packages/lib/server-only/pdf/generate-recipient-identity-evidence-pdf.ts
+msgid "Official ID image {0}"
+msgstr "Official ID image {0}"
+
+#: packages/lib/server-only/pdf/generate-recipient-identity-evidence-pdf.ts
+msgid "Official identification evidence"
+msgstr "Official identification evidence"
+
+#: apps/remix/app/components/general/document-signing/recipient-identity-evidence-upload.tsx
+msgid "Official identification required"
+msgstr "Official identification required"
+
+#: apps/remix/app/components/general/document-signing/recipient-identity-evidence-upload.tsx
+msgid "Please refresh the page and try again."
+msgstr "Please refresh the page and try again."
+
+#: apps/remix/app/components/general/document-signing/recipient-identity-evidence-upload.tsx
+msgid "Replace images"
+msgstr "Replace images"
+
+#: apps/remix/app/components/general/document-signing/recipient-identity-evidence-upload.tsx
+msgid "Select at least two images"
+msgstr "Select at least two images"
+
+#: apps/remix/app/components/general/document-signing/recipient-identity-evidence-upload.tsx
+msgid "Select images"
+msgstr "Select images"
+
+#: packages/lib/server-only/pdf/generate-recipient-identity-evidence-pdf.ts
+msgid "Signer ID: {0} | Evidence page {1} of {2}"
+msgstr "Signer ID: {0} | Evidence page {1} of {2}"
+
+#: apps/remix/app/components/general/document-signing/recipient-identity-evidence-upload.tsx
+msgid "They will be attached to the signed contract as evidence."
+msgstr "They will be attached to the signed contract as evidence."
+
+#: apps/remix/app/components/general/document-signing/recipient-identity-evidence-upload.tsx
+msgid "Two images are required to enable signing"
+msgstr "Two images are required to enable signing"
+
+#: apps/remix/app/components/general/document-signing/recipient-identity-evidence-upload.tsx
+msgid "Unable to load identification images"
+msgstr "Unable to load identification images"
+
+#: apps/remix/app/components/general/document-signing/recipient-identity-evidence-upload.tsx
+msgid "Unable to save identification images"
+msgstr "Unable to save identification images"
+
+#: apps/remix/app/components/general/document-signing/recipient-identity-evidence-upload.tsx
+msgid "Upload at least two clear photos of the same official identification, including the side where your signature appears. One evidence page bearing your name and email will be added to the completed contract."
+msgstr "Upload at least two clear photos of the same official identification, including the side where your signature appears. One evidence page bearing your name and email will be added to the completed contract."
+
+#: apps/remix/app/components/general/document-signing/recipient-identity-evidence-upload.tsx
+msgid "Use JPEG or PNG images no larger than 10 MB each."
+msgstr "Use JPEG or PNG images no larger than 10 MB each."

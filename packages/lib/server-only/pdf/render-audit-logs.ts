@@ -3,12 +3,9 @@ import { msg } from '@lingui/core/macro';
 import type { DocumentMeta, Envelope, RecipientRole } from '@prisma/client';
 import Konva from 'konva';
 import 'konva/skia-backend';
-import fs from 'node:fs';
-import path from 'node:path';
 import type { DateTimeFormatOptions } from 'luxon';
 import { DateTime } from 'luxon';
 import type { Canvas } from 'skia-canvas';
-import { Image as SkiaImage } from 'skia-canvas';
 import { match, P } from 'ts-pattern';
 import { UAParser } from 'ua-parser-js';
 
@@ -49,7 +46,6 @@ const parser = new UAParser();
 const textMutedForegroundLight = '#929DAE';
 const textForeground = '#000';
 const textMutedForeground = '#64748B';
-const textBase = 10;
 const textSm = 9;
 const textXs = 8;
 const fontMedium = '500';
@@ -435,27 +431,6 @@ const renderRow = (options: RenderRowOptions) => {
   return rowGroup;
 };
 
-const renderBranding = () => {
-  const branding = new Konva.Group();
-
-  const brandingHeight = 16;
-
-  const logoPath = path.join(process.cwd(), 'public/static/logo.png');
-  const logo = fs.readFileSync(logoPath);
-
-  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-  const img = new SkiaImage(logo) as unknown as HTMLImageElement;
-
-  const brandingImage = new Konva.Image({
-    image: img,
-    height: brandingHeight,
-    width: brandingHeight * (img.width / img.height),
-  });
-
-  branding.add(brandingImage);
-  return branding;
-};
-
 type GroupRowsIntoPagesOptions = {
   auditLogs: TDocumentAuditLog[];
   maxHeight: number;
@@ -567,7 +542,6 @@ export async function renderAuditLogs({
   pageWidth,
   pageHeight,
   i18n,
-  hidePoweredBy,
 }: GenerateAuditLogsOptions) {
   ensureFontLibrary();
 
@@ -603,16 +577,10 @@ export async function renderAuditLogs({
     overviewCard,
   });
 
-  const brandingGroup = renderBranding();
-  const brandingRect = brandingGroup.getClientRect();
-  const brandingTopPadding = 24;
-
   const pages: Uint8Array[] = [];
 
-  let isBrandingPlaced = false;
-
   // Render each page group to PDF
-  for (const [index, pageGroup] of pageGroups.entries()) {
+  for (const pageGroup of pageGroups) {
     stage.destroyChildren();
     const page = new Konva.Layer();
 
@@ -628,56 +596,11 @@ export async function renderAuditLogs({
 
     page.add(pageGroup);
 
-    // Add branding on the last page if there is space.
-    if (index === pageGroups.length - 1 && !hidePoweredBy) {
-      const remainingHeight = pageHeight - pageGroup.getClientRect().height - pageBottomMargin;
-
-      if (brandingRect.height + brandingTopPadding <= remainingHeight) {
-        brandingGroup.setAttrs({
-          x: pageWidth - brandingRect.width - margin,
-          y: pageGroup.getClientRect().height + brandingTopPadding,
-        } satisfies Partial<Konva.GroupConfig>);
-
-        page.add(brandingGroup);
-        isBrandingPlaced = true;
-      }
-    }
-
     stage.add(page);
 
     // Export the page and save it.
     const canvas = page.canvas._canvas as unknown as Canvas; // eslint-disable-line @typescript-eslint/consistent-type-assertions
     const buffer = await canvas.toBuffer('pdf');
-    pages.push(new Uint8Array(buffer));
-  }
-
-  // Need to create an empty page for the branding if it hasn't been placed yet.
-  if (!hidePoweredBy && !isBrandingPlaced) {
-    stage.destroyChildren();
-    const page = new Konva.Layer();
-
-    brandingGroup.setAttrs({
-      x: pageWidth - brandingRect.width - margin,
-      y: pageTopMargin,
-    } satisfies Partial<Konva.GroupConfig>);
-
-    const overflowFooterText = new Konva.Text({
-      x: margin,
-      y: pageHeight - textXs - 10,
-      text: `${i18n._(msg`Envelope ID`)}: ${envelope.id}`,
-      fontFamily: 'Inter',
-      fontSize: textXs,
-      fill: textMutedForegroundLight,
-    });
-    page.add(overflowFooterText);
-
-    page.add(brandingGroup);
-    stage.add(page);
-
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    const canvas = page.canvas._canvas as unknown as Canvas;
-    const buffer = await canvas.toBuffer('pdf');
-
     pages.push(new Uint8Array(buffer));
   }
 

@@ -453,11 +453,12 @@ model Envelope {
   internalVersion         Int
   useLegacyFieldInsertion Boolean @default(false)
 
-  envelopeItems EnvelopeItem[]
-  recipients    Recipient[]
-  fields        Field[]
-  shareLinks    DocumentShareLink[]
-  auditLogs     DocumentAuditLog[]
+  envelopeItems    EnvelopeItem[]
+  recipients       Recipient[]
+  fields           Field[]
+  shareLinks       DocumentShareLink[]
+  auditLogs        DocumentAuditLog[]
+  identityEvidence RecipientIdentityEvidence[]
 
   // Envelope settings
   authOptions Json? /// [DocumentAuthOptions] @zod.custom.use(ZDocumentAuthOptionsSchema)
@@ -567,9 +568,10 @@ model DocumentMeta {
   signingOrder           DocumentSigningOrder @default(PARALLEL)
   allowDictateNextSigner Boolean              @default(false)
 
-  typedSignatureEnabled  Boolean @default(true)
-  uploadSignatureEnabled Boolean @default(true)
-  drawSignatureEnabled   Boolean @default(true)
+  typedSignatureEnabled        Boolean @default(true)
+  uploadSignatureEnabled       Boolean @default(true)
+  drawSignatureEnabled         Boolean @default(true)
+  identityVerificationRequired Boolean @default(false)
 
   language           String                     @default("en")
   distributionMethod DocumentDistributionMethod @default(EMAIL)
@@ -629,10 +631,10 @@ enum RecipientRole {
 
 /// @zod.import(["import { ZRecipientAuthOptionsSchema } from '@documenso/lib/types/document-auth';"])
 model Recipient {
-  id                   Int           @id @default(autoincrement())
+  id                   Int                         @id @default(autoincrement())
   envelopeId           String
-  email                String        @db.VarChar(255)
-  name                 String        @default("") @db.VarChar(255)
+  email                String                      @db.VarChar(255)
+  name                 String                      @default("") @db.VarChar(255)
   token                String
   documentDeletedAt    DateTime?
   expired              DateTime? // deprecated Not in use. To be removed in a future migration.
@@ -642,17 +644,18 @@ model Recipient {
   signedAt             DateTime?
   lastReminderSentAt   DateTime?
   nextReminderAt       DateTime?
-  reminderCount        Int           @default(0)
+  reminderCount        Int                         @default(0)
   authOptions          Json? /// [RecipientAuthOptions] @zod.custom.use(ZRecipientAuthOptionsSchema)
   signingOrder         Int? /// @zod.number.describe("The order in which the recipient should sign the document. Only works if the document is set to sequential signing.")
   rejectionReason      String?
-  role                 RecipientRole @default(SIGNER)
-  readStatus           ReadStatus    @default(NOT_OPENED)
-  signingStatus        SigningStatus @default(NOT_SIGNED)
-  sendStatus           SendStatus    @default(NOT_SENT)
-  envelope             Envelope      @relation(fields: [envelopeId], references: [id], onDelete: Cascade)
+  role                 RecipientRole               @default(SIGNER)
+  readStatus           ReadStatus                  @default(NOT_OPENED)
+  signingStatus        SigningStatus               @default(NOT_SIGNED)
+  sendStatus           SendStatus                  @default(NOT_SENT)
+  envelope             Envelope                    @relation(fields: [envelopeId], references: [id], onDelete: Cascade)
   fields               Field[]
   signatures           Signature[]
+  identityEvidence     RecipientIdentityEvidence[]
 
   cscCredential CscCredential?
   cscSession    CscSession?
@@ -721,6 +724,32 @@ model Signature {
   recipient Recipient @relation(fields: [recipientId], references: [id], onDelete: Cascade)
   field     Field     @relation(fields: [fieldId], references: [id], onDelete: Cascade)
 
+  @@index([recipientId])
+}
+
+/// Official-identification images supplied by a signer before completion.
+/// The storage fields use the same transport abstraction as envelope PDFs so
+/// self-hosted deployments can keep the files in database or object storage.
+model RecipientIdentityEvidence {
+  id String @id @default(cuid())
+
+  envelopeId  String
+  recipientId Int
+  position    Int
+
+  fileName    String
+  mimeType    String
+  storageType DocumentDataType
+  data        String
+  sha256      String
+
+  createdAt DateTime @default(now())
+
+  envelope  Envelope  @relation(fields: [envelopeId], references: [id], onDelete: Cascade)
+  recipient Recipient @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+
+  @@unique([recipientId, position])
+  @@index([envelopeId])
   @@index([recipientId])
 }
 

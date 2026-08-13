@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/react/macro';
 
-import { Button, Link, Section, Text } from '../components';
+import { Button, Section, Text } from '../components';
 import { TemplateDocumentImage } from './template-document-image';
 
 export type TemplateAdminUserCreatedProps = {
@@ -15,11 +15,11 @@ export const TemplateAdminUserCreated = ({ resetPasswordLink, assetBaseUrl }: Te
 
       <Section className="flex-row items-center justify-center">
         <Text className="mx-auto mb-0 max-w-[80%] text-center font-semibold text-foreground text-lg">
-          <Trans>Welcome to Documenso!</Trans>
+          <Trans>Welcome to Plane Contracts!</Trans>
         </Text>
 
         <Text className="my-1 text-center text-base text-muted-foreground">
-          <Trans>An administrator has created a Documenso account for you.</Trans>
+          <Trans>An administrator has created a contract signing account for you.</Trans>
         </Text>
 
         <Text className="my-1 text-center text-base text-muted-foreground">
@@ -36,18 +36,6 @@ export const TemplateAdminUserCreated = ({ resetPasswordLink, assetBaseUrl }: Te
           <Text className="mt-8 text-center text-muted-foreground text-sm italic">
             <Trans>
               You can also copy and paste this link into your browser: {resetPasswordLink} (link expires in 24 hours)
-            </Trans>
-          </Text>
-        </Section>
-
-        <Section className="mt-8">
-          <Text className="text-center text-muted-foreground text-sm">
-            <Trans>
-              If you didn't expect this account or have any questions, please{' '}
-              <Link href="mailto:support@documenso.com" className="text-primary">
-                contact support
-              </Link>
-              .
             </Trans>
           </Text>
         </Section>

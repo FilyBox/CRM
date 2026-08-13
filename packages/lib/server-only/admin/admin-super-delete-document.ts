@@ -10,6 +10,7 @@ import { AppError, AppErrorCode } from '../../errors/app-error';
 import { DOCUMENT_AUDIT_LOG_TYPE } from '../../types/document-audit-logs';
 import { extractDerivedDocumentEmailSettings } from '../../types/document-email';
 import type { RequestMetadata } from '../../universal/extract-request-metadata';
+import { deleteFile } from '../../universal/upload/delete-file';
 import { createDocumentAuditLogData } from '../../utils/document-audit-logs';
 import { isRecipientEmailValidForSending } from '../../utils/recipients';
 import { renderEmailWithI18N } from '../../utils/render-email-with-i18n';
@@ -58,6 +59,10 @@ export const adminSuperDeleteDocument = async ({ envelopeId, requestMetadata }: 
   const isDocumentDeletedEmailEnabled = extractDerivedDocumentEmailSettings(envelope.documentMeta).documentDeleted;
 
   const recipientsToNotify = envelope.recipients.filter((recipient) => isRecipientEmailValidForSending(recipient));
+  const identityEvidence = await prisma.recipientIdentityEvidence.findMany({
+    where: { envelopeId },
+    select: { storageType: true, data: true },
+  });
 
   // if the document is pending, send cancellation emails to all recipients
   if (status === DocumentStatus.PENDING && recipientsToNotify.length > 0 && isDocumentDeletedEmailEnabled) {
@@ -104,7 +109,7 @@ export const adminSuperDeleteDocument = async ({ envelopeId, requestMetadata }: 
   }
 
   // always hard delete if deleted from admin
-  return await prisma.$transaction(async (tx) => {
+  const deletedEnvelope = await prisma.$transaction(async (tx) => {
     await tx.documentAuditLog.create({
       data: createDocumentAuditLogData({
         envelopeId,
@@ -119,4 +124,8 @@ export const adminSuperDeleteDocument = async ({ envelopeId, requestMetadata }: 
 
     return await tx.envelope.delete({ where: { id: envelopeId } });
   });
+
+  await Promise.allSettled(identityEvidence.map(({ storageType, data }) => deleteFile({ type: storageType, data })));
+
+  return deletedEnvelope;
 };

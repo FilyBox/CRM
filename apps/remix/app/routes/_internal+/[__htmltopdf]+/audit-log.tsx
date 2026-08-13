@@ -15,7 +15,6 @@ import { DateTime } from 'luxon';
 import { redirect } from 'react-router';
 
 import appStylesheet from '~/app.css?url';
-import { BrandingLogo } from '~/components/general/branding-logo';
 import { InternalAuditLogTable } from '~/components/tables/internal-audit-log-table';
 
 import type { Route } from './+types/audit-log';
@@ -98,7 +97,7 @@ export async function loader({ request }: Route.LoaderArgs) {
  * Update: Maybe <Trans> tags work now after RR7 migration.
  */
 export default function AuditLog({ loaderData }: Route.ComponentProps) {
-  const { auditLogs, document, documentLanguage, hidePoweredBy, messages } = loaderData;
+  const { auditLogs, document, documentLanguage, messages } = loaderData;
 
   const { i18n, _ } = useLingui();
 
@@ -186,14 +185,6 @@ export default function AuditLog({ loaderData }: Route.ComponentProps) {
       <div className="mt-8">
         <InternalAuditLogTable logs={auditLogs} />
       </div>
-
-      {!hidePoweredBy && (
-        <div className="my-8 flex-row-reverse">
-          <div className="flex items-end justify-end gap-x-4">
-            <BrandingLogo className="max-h-6 print:max-h-4" />
-          </div>
-        </div>
-      )}
     </div>
   );
 }

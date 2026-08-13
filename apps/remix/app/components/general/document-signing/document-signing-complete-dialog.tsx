@@ -18,7 +18,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Trans, useLingui } from '@lingui/react/macro';
 import type { Field, Recipient } from '@prisma/client';
 import { RecipientRole } from '@prisma/client';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { match } from 'ts-pattern';
 import { z } from 'zod';
@@ -26,6 +26,7 @@ import { z } from 'zod';
 import { useEmbedSigningContext } from '~/components/embed/embed-signing-context';
 import { AccessAuth2FAForm } from '~/components/general/document-signing/access-auth-2fa-form';
 import { DocumentSigningDisclosure } from '~/components/general/document-signing/document-signing-disclosure';
+import { RecipientIdentityEvidenceUpload } from '~/components/general/document-signing/recipient-identity-evidence-upload';
 
 import { useRequiredDocumentSigningAuthContext } from './document-signing-auth-provider';
 
@@ -53,6 +54,7 @@ export type DocumentSigningCompleteDialogProps = {
   buttonSize?: 'sm' | 'lg';
   position?: 'start' | 'end' | 'center';
   disableNameInput?: boolean;
+  requireIdentityEvidence?: boolean;
 };
 
 const ZNextSignerFormSchema = z.object({
@@ -84,6 +86,7 @@ export const DocumentSigningCompleteDialog = ({
   buttonSize = 'lg',
   position,
   disableNameInput = false,
+  requireIdentityEvidence = true,
 }: DocumentSigningCompleteDialogProps) => {
   const { t } = useLingui();
 
@@ -91,10 +94,20 @@ export const DocumentSigningCompleteDialog = ({
 
   const [showTwoFactorForm, setShowTwoFactorForm] = useState(false);
   const [twoFactorValidationError, setTwoFactorValidationError] = useState<string | null>(null);
+  const [identityEvidenceCount, setIdentityEvidenceCount] = useState(0);
+  const [isIdentityEvidenceLoading, setIsIdentityEvidenceLoading] = useState(false);
 
   const { derivedRecipientAccessAuth } = useRequiredDocumentSigningAuthContext();
 
   const { isNameLocked, isEmailLocked } = useEmbedSigningContext() || {};
+
+  const requiresIdentityEvidence = requireIdentityEvidence && recipient.role === RecipientRole.SIGNER;
+  const isIdentityEvidenceComplete = !requiresIdentityEvidence || identityEvidenceCount >= 2;
+
+  const handleIdentityEvidenceStatus = useCallback((count: number, isLoading: boolean) => {
+    setIdentityEvidenceCount(count);
+    setIsIdentityEvidenceLoading(isLoading);
+  }, []);
 
   const form = useForm<TNextSignerFormSchema>({
     resolver: allowDictateNextSigner ? zodResolver(ZNextSignerFormSchema) : undefined,
@@ -135,6 +148,10 @@ export const DocumentSigningCompleteDialog = ({
   };
 
   const onFormSubmit = async (data: TNextSignerFormSchema) => {
+    if (!isIdentityEvidenceComplete || isIdentityEvidenceLoading) {
+      return;
+    }
+
     try {
       let recipientOverridePayload: { name: string; email: string } | undefined;
 
@@ -301,6 +318,14 @@ export const DocumentSigningCompleteDialog = ({
 
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onFormSubmit)}>
+                {requiresIdentityEvidence && (
+                  <RecipientIdentityEvidenceUpload
+                    token={recipient.token}
+                    disabled={form.formState.isSubmitting}
+                    onStatusChange={handleIdentityEvidenceStatus}
+                  />
+                )}
+
                 {allowDictateNextSigner && defaultNextSigner && (
                   <div className="mb-4 flex flex-col gap-4">
                     <div className="flex flex-col gap-4 md:flex-row">
@@ -357,7 +382,11 @@ export const DocumentSigningCompleteDialog = ({
                     <Trans>Cancel</Trans>
                   </Button>
 
-                  <Button type="submit" disabled={!isComplete} loading={form.formState.isSubmitting}>
+                  <Button
+                    type="submit"
+                    disabled={!isComplete || !isIdentityEvidenceComplete || isIdentityEvidenceLoading}
+                    loading={form.formState.isSubmitting}
+                  >
                     {match(recipient.role)
                       .with(RecipientRole.VIEWER, () => <Trans>Mark as Viewed</Trans>)
                       .with(RecipientRole.SIGNER, () => <Trans>Sign</Trans>)

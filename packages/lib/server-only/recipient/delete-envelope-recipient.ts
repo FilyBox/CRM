@@ -1,5 +1,6 @@
 import { DOCUMENT_AUDIT_LOG_TYPE } from '@documenso/lib/types/document-audit-logs';
 import type { ApiRequestMetadata } from '@documenso/lib/universal/extract-request-metadata';
+import { deleteFile } from '@documenso/lib/universal/upload/delete-file';
 import { prisma } from '@documenso/prisma';
 import { EnvelopeType, RecipientRole, SendStatus } from '@prisma/client';
 
@@ -43,6 +44,9 @@ export const deleteEnvelopeRecipient = async ({
         },
         include: {
           fields: true,
+          identityEvidence: {
+            select: { storageType: true, data: true },
+          },
         },
       },
     },
@@ -65,7 +69,7 @@ export const deleteEnvelopeRecipient = async ({
     });
   }
 
-  assertEnvelopeMutable(envelope);
+  await assertEnvelopeMutable(envelope);
 
   if (envelope.completedAt) {
     throw new AppError(AppErrorCode.INVALID_REQUEST, {
@@ -129,6 +133,10 @@ export const deleteEnvelopeRecipient = async ({
       },
     });
   });
+
+  await Promise.allSettled(
+    recipientToDelete.identityEvidence.map(({ storageType, data }) => deleteFile({ type: storageType, data })),
+  );
 
   const isRecipientRemovedEmailEnabled = extractDerivedDocumentEmailSettings(envelope.documentMeta).recipientRemoved;
 

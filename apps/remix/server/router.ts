@@ -27,6 +27,7 @@ import type { Logger } from 'pino';
 import { aiRoute } from './api/ai/route';
 import { downloadRoute } from './api/download/download';
 import { filesRoute } from './api/files/files';
+import { recipientIdentityEvidenceRoute } from './api/files/recipient-identity-evidence';
 import { type AppContext, appContext } from './context';
 import { appMiddleware } from './middleware';
 import { securityHeadersMiddleware } from './security-headers';
@@ -105,6 +106,8 @@ app.route('/api/auth', auth);
 
 // Files route.
 app.use('/api/files/upload-pdf', fileRateLimitMiddleware);
+app.use('/api/files/recipient-identity/*', fileRateLimitMiddleware);
+app.route('/api/files/recipient-identity', recipientIdentityEvidenceRoute);
 app.route('/api/files', filesRoute);
 
 // AI route.

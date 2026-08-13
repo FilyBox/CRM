@@ -26,6 +26,7 @@ import { extractDocumentAuthMethods } from '../../utils/document-auth';
 import type { EnvelopeIdOptions } from '../../utils/envelope';
 import { mapSecondaryIdToDocumentId, unsafeBuildEnvelopeIdQuery } from '../../utils/envelope';
 import { assertRecipientNotExpired } from '../../utils/recipients';
+import { assertRecipientIdentityEvidence } from '../recipient/assert-recipient-identity-evidence';
 import { getIsRecipientsTurnToSign } from '../recipient/get-is-recipient-turn';
 import { triggerWebhook } from '../webhooks/trigger/trigger-webhook';
 import { isRecipientAuthorized } from './is-recipient-authorized';
@@ -101,6 +102,10 @@ export const completeDocumentWithToken = async ({
       message: 'Recipient has already rejected the document',
       statusCode: 400,
     });
+  }
+
+  if (envelope.documentMeta?.identityVerificationRequired) {
+    await assertRecipientIdentityEvidence({ recipientId: recipient.id });
   }
 
   if (envelope.documentMeta?.signingOrder === DocumentSigningOrder.SEQUENTIAL) {

@@ -29,7 +29,6 @@ import { type Field, RecipientRole, SigningStatus } from '@prisma/client';
 import { LucideChevronDown, LucideChevronUp } from 'lucide-react';
 import { useEffect, useId, useLayoutEffect, useMemo, useState } from 'react';
 
-import { BrandingLogo } from '~/components/general/branding-logo';
 import PDFViewerLazy from '~/components/general/pdf-viewer/pdf-viewer-lazy';
 import { injectCss } from '~/utils/css-vars';
 
@@ -67,7 +66,6 @@ export const EmbedSignDocumentV1ClientPage = ({
   completedFields,
   metadata,
   isCompleted,
-  hidePoweredBy = false,
   allowWhitelabelling = false,
   allRecipients = [],
 }: EmbedSignDocumentV1ClientPageProps) => {
@@ -504,15 +502,6 @@ export const EmbedSignDocumentV1ClientPage = ({
           {/* Completed fields */}
           <DocumentReadOnlyFields documentMeta={metadata || undefined} fields={completedFields} />
         </div>
-
-        {!hidePoweredBy && (
-          <div className="fixed bottom-0 left-0 z-40 rounded-tr bg-primary px-2 py-1 font-medium text-primary-foreground text-xs opacity-60 hover:opacity-100">
-            <span>
-              <Trans>Powered by</Trans>
-            </span>
-            <BrandingLogo className="ml-2 inline-block h-[14px]" />
-          </div>
-        )}
       </div>
     </DocumentSigningRecipientProvider>
   );

@@ -3,12 +3,10 @@ import { getDocumentAndSenderByToken } from '@documenso/lib/server-only/document
 import { getOrganisationClaimByTeamId } from '@documenso/lib/server-only/organisation/get-organisation-claims';
 import { getRecipientByToken } from '@documenso/lib/server-only/recipient/get-recipient-by-token';
 import { ZSignDocumentEmbedDataSchema } from '@documenso/lib/types/embed-document-sign-schema';
-import { Trans } from '@lingui/react/macro';
 import { SigningStatus } from '@prisma/client';
 import { useEffect, useLayoutEffect, useState } from 'react';
 import { useRevalidator } from 'react-router';
 
-import { BrandingLogo } from '~/components/general/branding-logo';
 import { DocumentSigningAuthProvider } from '~/components/general/document-signing/document-signing-auth-provider';
 import { DocumentSigningProvider } from '~/components/general/document-signing/document-signing-provider';
 import { DocumentSigningRecipientProvider } from '~/components/general/document-signing/document-signing-recipient-provider';
@@ -64,7 +62,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export default function MultisignPage() {
-  const { envelopes, user, hidePoweredBy, allowWhitelabelling } = useSuperLoaderData<typeof loader>();
+  const { envelopes, user, allowWhitelabelling } = useSuperLoaderData<typeof loader>();
 
   const revalidator = useRevalidator();
 
@@ -258,15 +256,6 @@ export default function MultisignPage() {
             </DocumentSigningRecipientProvider>
           </DocumentSigningAuthProvider>
         </DocumentSigningProvider>
-
-        {!hidePoweredBy && (
-          <div className="fixed bottom-0 left-0 z-40 rounded-tr bg-primary px-2 py-1 font-medium text-primary-foreground text-xs opacity-60 hover:opacity-100">
-            <span>
-              <Trans>Powered by</Trans>
-            </span>
-            <BrandingLogo className="ml-2 inline-block h-[14px]" />
-          </div>
-        )}
       </div>
     );
   }
@@ -275,15 +264,6 @@ export default function MultisignPage() {
   return (
     <div className="p-4">
       <MultiSignDocumentList envelopes={envelopes} onDocumentSelect={onSelectDocument} />
-
-      {!hidePoweredBy && (
-        <div className="fixed bottom-0 left-0 z-40 rounded-tr bg-primary px-2 py-1 font-medium text-primary-foreground text-xs opacity-60 hover:opacity-100">
-          <span>
-            <Trans>Powered by</Trans>
-          </span>
-          <BrandingLogo className="ml-2 inline-block h-[14px]" />
-        </div>
-      )}
     </div>
   );
 }

@@ -40,7 +40,6 @@ import { DateTime } from 'luxon';
 import { useEffect, useLayoutEffect, useState } from 'react';
 import { useSearchParams } from 'react-router';
 
-import { BrandingLogo } from '~/components/general/branding-logo';
 import PDFViewerLazy from '~/components/general/pdf-viewer/pdf-viewer-lazy';
 import { injectCss } from '~/utils/css-vars';
 import { getDirectTemplateErrorMessage } from '~/utils/toast-error-messages';
@@ -72,7 +71,6 @@ export const EmbedDirectTemplateClientPage = ({
   recipient,
   fields,
   metadata,
-  hidePoweredBy = false,
   allowWhiteLabelling = false,
 }: EmbedDirectTemplateClientPageProps) => {
   const { _ } = useLingui();
@@ -513,15 +511,6 @@ export const EmbedDirectTemplateClientPage = ({
           onUnsignField={onUnsignField}
         />
       </div>
-
-      {!hidePoweredBy && (
-        <div className="fixed bottom-0 left-0 z-40 rounded-tr bg-primary px-2 py-1 font-medium text-primary-foreground text-xs opacity-60 hover:opacity-100">
-          <span>
-            <Trans>Powered by</Trans>
-          </span>
-          <BrandingLogo className="ml-2 inline-block h-[14px]" />
-        </div>
-      )}
     </div>
   );
 };

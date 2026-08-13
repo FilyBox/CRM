@@ -4,6 +4,7 @@ import { finalizeTspEnvelopeCompletion } from '@documenso/ee/server-only/signing
 import { addRejectionStampToPdf } from '@documenso/lib/server-only/pdf/add-rejection-stamp-to-pdf';
 import { generateAuditLogPdf } from '@documenso/lib/server-only/pdf/generate-audit-log-pdf';
 import { generateCertificatePdf } from '@documenso/lib/server-only/pdf/generate-certificate-pdf';
+import { generateRecipientIdentityEvidencePdf } from '@documenso/lib/server-only/pdf/generate-recipient-identity-evidence-pdf';
 import { getLastPageDimensions } from '@documenso/lib/server-only/pdf/get-page-size';
 import { prisma } from '@documenso/prisma';
 import { signPdf } from '@documenso/signing';
@@ -53,7 +54,13 @@ export const run = async ({ payload, io }: { payload: TSealDocumentJobDefinition
           },
         },
         documentMeta: true,
-        recipients: true,
+        recipients: {
+          include: {
+            identityEvidence: {
+              orderBy: { position: 'asc' },
+            },
+          },
+        },
         fields: {
           include: {
             signature: true,
@@ -219,6 +226,7 @@ export const run = async ({ payload, io }: { payload: TSealDocumentJobDefinition
 
       let certificateDoc: PDF | null = null;
       let auditLogDoc: PDF | null = null;
+      let identityEvidenceDoc: PDF | null = null;
 
       if (needsCertificate || needsAuditLog) {
         const pdfDoc = await PDF.load(pdfData);
@@ -274,6 +282,19 @@ export const run = async ({ payload, io }: { payload: TSealDocumentJobDefinition
         ]);
       }
 
+      if (!isRejected && envelope.documentMeta.identityVerificationRequired) {
+        const pdfDoc = await PDF.load(pdfData);
+        const { width: pageWidth, height: pageHeight } = getLastPageDimensions(pdfDoc);
+
+        identityEvidenceDoc = await generateRecipientIdentityEvidencePdf({
+          envelopeId: envelope.id,
+          recipients: envelope.recipients,
+          pageWidth,
+          pageHeight,
+          language: envelope.documentMeta.language,
+        });
+      }
+
       const result = await decorateAndSignPdf({
         envelope,
         envelopeItem,
@@ -283,6 +304,7 @@ export const run = async ({ payload, io }: { payload: TSealDocumentJobDefinition
         pdfData,
         certificateDoc,
         auditLogDoc,
+        identityEvidenceDoc,
       });
 
       newDocumentData.push(result);
@@ -366,6 +388,7 @@ type DecorateAndSignPdfOptions = {
   pdfData: Uint8Array;
   certificateDoc: PDF | null;
   auditLogDoc: PDF | null;
+  identityEvidenceDoc: PDF | null;
 };
 
 /**
@@ -380,6 +403,7 @@ const decorateAndSignPdf = async ({
   pdfData,
   certificateDoc,
   auditLogDoc,
+  identityEvidenceDoc,
 }: DecorateAndSignPdfOptions) => {
   let pdfDoc = await PDF.load(pdfData);
 
@@ -404,6 +428,13 @@ const decorateAndSignPdf = async ({
     await pdfDoc.copyPagesFrom(
       auditLogDoc,
       Array.from({ length: auditLogDoc.getPageCount() }, (_, index) => index),
+    );
+  }
+
+  if (identityEvidenceDoc) {
+    await pdfDoc.copyPagesFrom(
+      identityEvidenceDoc,
+      Array.from({ length: identityEvidenceDoc.getPageCount() }, (_, index) => index),
     );
   }
 

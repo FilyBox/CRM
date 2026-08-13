@@ -258,6 +258,7 @@ export const EnvelopeSignerCompleteDialog = () => {
       defaultNextSigner={nextRecipient ? { name: nextRecipient.name, email: nextRecipient.email } : undefined}
       buttonSize="sm"
       position="center"
+      requireIdentityEvidence={!isDirectTemplate && envelope.documentMeta.identityVerificationRequired}
     />
   );
 };

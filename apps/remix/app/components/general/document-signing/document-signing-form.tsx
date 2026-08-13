@@ -149,6 +149,7 @@ export const DocumentSigningForm = ({
                   defaultNextSigner={
                     nextRecipient ? { name: nextRecipient.name, email: nextRecipient.email } : undefined
                   }
+                  requireIdentityEvidence={Boolean(document.documentMeta?.identityVerificationRequired)}
                 />
               </div>
             </div>
@@ -289,6 +290,7 @@ export const DocumentSigningForm = ({
                   defaultNextSigner={
                     nextRecipient ? { name: nextRecipient.name, email: nextRecipient.email } : undefined
                   }
+                  requireIdentityEvidence={Boolean(document.documentMeta?.identityVerificationRequired)}
                 />
               </div>
             </>

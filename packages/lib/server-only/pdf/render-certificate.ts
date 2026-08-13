@@ -4,8 +4,6 @@ import type { Field, RecipientRole, Signature } from '@prisma/client';
 import { SigningStatus } from '@prisma/client';
 import Konva from 'konva';
 import 'konva/skia-backend';
-import fs from 'node:fs';
-import path from 'node:path';
 import { DateTime } from 'luxon';
 import type { Canvas } from 'skia-canvas';
 import { Image as SkiaImage } from 'skia-canvas';
@@ -74,7 +72,6 @@ const getDevice = (userAgent?: string | null): string => {
 };
 
 const textMutedForegroundLight = '#929DAE';
-const textForeground = '#000';
 const textMutedForeground = '#64748B';
 const textRejectedRed = '#dc2626';
 const textBase = 10;
@@ -563,65 +560,25 @@ const renderRow = (options: RenderRowOptions) => {
   return rowGroup;
 };
 
-const renderBranding = async ({ qrToken, i18n }: { qrToken: string | null; i18n: I18n }) => {
-  const branding = new Konva.Group();
-
-  const brandingHeight = 12;
-
-  const text = new Konva.Text({
-    x: 0,
-    verticalAlign: 'middle',
-    text: i18n._(msg`Signing certificate provided by`) + ':',
-    fontStyle: fontMedium,
-    fontFamily: 'Inter',
-    fontSize: textSm,
-    height: brandingHeight,
+const renderVerificationQr = async (qrToken: string) => {
+  const verificationQr = new Konva.Group();
+  const qrSize = qrToken ? 72 : 0;
+  const qrSvg = renderSVG(`${NEXT_PUBLIC_WEBAPP_URL()}/share/${qrToken}`, {
+    ecc: 'Q',
   });
-
-  const logoPath = path.join(process.cwd(), 'public/static/logo.png');
-  const logo = fs.readFileSync(logoPath);
+  const svgImage = await svgToPng(qrSvg);
 
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-  const img = new SkiaImage(logo) as unknown as HTMLImageElement;
-
-  const documensoImage = new Konva.Image({
-    image: img,
-    height: brandingHeight,
-    width: brandingHeight * (img.width / img.height),
-    x: text.width() + 16,
-  });
-
-  const qrSize = qrToken ? 72 : 0;
-
-  const logoGroup = new Konva.Group({
-    y: qrSize + 16,
-  });
-  logoGroup.add(text);
-  logoGroup.add(documensoImage);
-
-  branding.add(logoGroup);
-
-  if (qrToken) {
-    const qrSvg = renderSVG(`${NEXT_PUBLIC_WEBAPP_URL()}/share/${qrToken}`, {
-      ecc: 'Q',
-    });
-
-    const svgImage = await svgToPng(qrSvg);
-
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    const qrSkiaImage = new SkiaImage(svgImage) as unknown as HTMLImageElement;
-    const qrImage = new Konva.Image({
+  const qrSkiaImage = new SkiaImage(svgImage) as unknown as HTMLImageElement;
+  verificationQr.add(
+    new Konva.Image({
       image: qrSkiaImage,
       height: qrSize,
       width: qrSize,
-      x: branding.getClientRect().width - qrSize,
-      y: 0,
-    });
+    }),
+  );
 
-    branding.add(qrImage);
-  }
-
-  return branding;
+  return verificationQr;
 };
 
 type GroupRowsIntoPagesOptions = {
@@ -717,7 +674,6 @@ export async function renderCertificate({
   recipients,
   envelopeId,
   qrToken,
-  hidePoweredBy,
   i18n,
   envelopeOwner,
   pageWidth,
@@ -752,9 +708,9 @@ export async function renderCertificate({
 
   const tables = renderTables({ groupedRows, columnWidths, i18n });
 
-  const brandingGroup = await renderBranding({ qrToken, i18n });
-  const brandingRect = brandingGroup.getClientRect();
-  const brandingTopPadding = 24;
+  const verificationQr = qrToken ? await renderVerificationQr(qrToken) : null;
+  const verificationQrRect = verificationQr?.getClientRect();
+  const verificationQrTopPadding = 24;
 
   const pages: Uint8Array[] = [];
 
@@ -786,17 +742,17 @@ export async function renderCertificate({
     group.add(titleText);
     group.add(table);
 
-    // Add QR code and branding on the last page if there is space.
-    if (index === tables.length - 1 && !hidePoweredBy) {
+    // Add the verification QR code on the last page if there is space.
+    if (index === tables.length - 1 && verificationQr && verificationQrRect) {
       const remainingHeight = pageHeight - group.getClientRect().height - pageBottomMargin;
 
-      if (brandingRect.height + brandingTopPadding <= remainingHeight) {
-        brandingGroup.setAttrs({
-          x: pageWidth - brandingRect.width - margin,
-          y: group.getClientRect().height + brandingTopPadding,
+      if (verificationQrRect.height + verificationQrTopPadding <= remainingHeight) {
+        verificationQr.setAttrs({
+          x: pageWidth - verificationQrRect.width - margin,
+          y: group.getClientRect().height + verificationQrTopPadding,
         } satisfies Partial<Konva.GroupConfig>);
 
-        page.add(brandingGroup);
+        page.add(verificationQr);
         isQrPlaced = true;
       }
     }
@@ -821,11 +777,11 @@ export async function renderCertificate({
   }
 
   // Need to create an empty page for the QR code if it hasn't been placed yet.
-  if (!hidePoweredBy && !isQrPlaced) {
+  if (verificationQr && verificationQrRect && !isQrPlaced) {
     const page = new Konva.Layer();
 
-    brandingGroup.setAttrs({
-      x: pageWidth - brandingRect.width - margin,
+    verificationQr.setAttrs({
+      x: pageWidth - verificationQrRect.width - margin,
       y: pageTopMargin / 2, // Less padding since there's nothing else on this page.
     } satisfies Partial<Konva.GroupConfig>);
 
@@ -839,7 +795,7 @@ export async function renderCertificate({
     });
     page.add(overflowFooterText);
 
-    page.add(brandingGroup);
+    page.add(verificationQr);
     stage.add(page);
 
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
